@@ -21,6 +21,7 @@ struct ReviewAndImageStackView: View {
             TextField("Review", text: $book.microReview)
             Divider()
                 .padding(.vertical)
+            Book.Image(image: image, title: book.title, cornerRadius: 16)
             
             HStack {
                 if image != nil {
@@ -38,11 +39,22 @@ struct ReviewAndImageStackView: View {
             padding()
             Spacer()
         }
-//        .sheet(isPresented: $showImagePicker) {
-//            ImagePicker(image: $image)
-//        }
+        
+        .sheet(isPresented: $showImagePicker) {
+            ImagePicker(image: $image)
+        }
+        
+        .confirmationDialog(
+            "Delete image for \(book.title)?",
+            isPresented: $showingDialog
+        ) {
+            Button("Delete", role: .destructive) { image = nil }
+        } message: {
+            Text("Delete image for \(book.title)?")
+        }
     }
 }
     #Preview {
         ReviewAndImageStackView(book: .init(), image: .constant(nil))
+            .padding()
     }
