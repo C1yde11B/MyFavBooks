@@ -1,46 +1,61 @@
-//
-//  ImagePicker.swift
-//  MyFavBooks
-//
-//  Created by AM Student on 10/1/24.
-//
-
-import SwiftUI
 import PhotosUI
+import SwiftUI
 
-struct ImagePicker {
-    
+struct ImagePicker: UIViewControllerRepresentable {
+
     @Binding var image: Image?
-    
-}
-
-class Coordinator {
-    
-    var parent: ImagePicker
-    
-    init (_ parent: ImagePicker) {
-        self.parent = parent
-        
+// Creates and returns a Coordinator instance to manage PHPickerViewControllerDelegate methods.
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
     }
-    // PHPickerViewContrllerDelegate method that is called when the user finishs picking an image
-    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
-        
-        // Dismisses the picker view.
-        picker.dismiss(animated: true)
-        
-        guard let provider = results.first?.itemProvider else { return }
-        
-        if provider.canLoadObject(ofClass: UIImage.self) {
-            
-            provider.loadObject(ofClass: UIImage.self) { image, _ in
-                
-                DispatchQueue.main.async {
-                    
-                }
-                
-            }
-            
+    //Configures and return the PHPickerViewController with image filter applied
+    func makeUIViewController(context: Context) -> PHPickerViewController {
+        var config = PHPickerConfiguration()
+        // The filter is applying image processing operation
+        config.filter = .images
+        let picker = PHPickerViewController(configuration: config)
+        picker.delegate = context.coordinator
+        return picker
+    }
+    // Update the PhPickerViewController. This Empty because there's no need to update the view contoller.
+    func updateUIViewController(
+        _ uiViewController: PHPickerViewController, context: Context
+    ) {}
+    // Coordinator class to handle PHPickerViewController Delegate methods
+
+    class Coordinator: NSObject, PHPickerViewControllerDelegate {
+
+        var parent: ImagePicker
+
+        init(_ parent: ImagePicker) {
+            self.parent = parent
         }
-        
+
+        func picker(
+            _ picker: PHPickerViewController,
+            didFinishPicking results: [PHPickerResult]
+        ) {
+
+            //dismisses the picker view
+            picker.dismiss(animated: true)
+
+            guard let provider = results.first?.itemProvider else { return }
+
+            //Checks if the itemProvider can load a UIIMage
+            if provider.canLoadObject(ofClass: UIImage.self) {
+
+                //loads the UIImage
+                provider.loadObject(ofClass: UIImage.self) { image, _ in
+
+                    //ensures the image loading is done
+                    DispatchQueue.main.async {
+
+                        if let uiImage = image as? UIImage {
+                            self.parent.image = Image(uiImage: uiImage)
+                        }
+                    }
+                }
+            }
+        }
     }
 }
