@@ -36,7 +36,7 @@ struct ReviewAndImageStackView: View {
                 }
                 Spacer()
             }
-            padding()
+            .padding()
             Spacer()
         }
         

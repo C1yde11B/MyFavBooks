@@ -9,9 +9,13 @@ import SwiftUI
 
 @main
 struct MyFavBooksApp: App {
+    
+    @StateObject private var library = Library()
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(library)
         }
     }
 }
